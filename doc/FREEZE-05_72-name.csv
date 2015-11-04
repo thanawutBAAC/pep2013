@@ -1,0 +1,7 @@
+﻿ENTITY_ID,SYS_ID,NAME_TYPE,FIRST_NAME,MIDDLE_NAME,SURNAME,SUFFIX,ENTITY_NAME,ENGLISH_NAME,SINGLE_STRING_NAME,ORIGINAL_SCRIPT_NAME,FALSE_POSITIVE,FALSE_POSITIVE_EXPIRY_DT,APPROVAL_STATUS,SUB_ENTITY_ID,CATEGORY,HIGH_RISK_COUNTRY,HIGH_RISK_COUNTRY_SCORE,INFO_SOURCE,ORG_ID,ACTION,ID_REF_NO,BATCH_NO,BATCH_DATE
+"CDD19108","19108005","Primary Name","บูคอรี","","ฮะมะ","","","","บูคอรี ฮะมะ","BU-KOREE HAMA","0","0","0","","","","0","FREEZE-05","","ADD","","06082013182527","20130806"
+"CDD19109","19109005","Primary Name","อูสนี","","บาโด","","","","อูสนี บาโด","AUSNEE BADO","0","0","0","","","","0","FREEZE-05","","ADD","","06082013182527","20130806"
+"CDD19110","19110005","Primary Name","มะตอเพะ","","มาลายอ","","","","มะตอเพะ มาลายอ","MATOPHEH MALAYOR","0","0","0","","","","0","FREEZE-05","","ADD","","06082013182527","20130806"
+"CDD19111","19111005","Primary Name","มะยากี","","บือราเฮง","","","","มะยากี บือราเฮง","MAHYA-KEE BARAHANG","0","0","0","","","","0","FREEZE-05","","ADD","","06082013182527","20130806"
+"CDD19112","19112005","Primary Name","บารอวี","","เจ๊ะแม","","","","บารอวี เจ๊ะแม","BAROWEE CHEMAE","0","0","0","","","","0","FREEZE-05","","ADD","","06082013182527","20130806"
+"CDD19113","19113005","Primary Name","อาบะห์","","เจะอาลี","","","","อาบะห์ เจะอาลี","ARBAH CHE ALEE","0","0","0","","","","0","FREEZE-05","","ADD","","06082013182527","20130806"

@@ -1,0 +1,101 @@
+
+/* tbl-master  [ entity_id, gender, info_source, user_id, stamp_dttm , approved_by, last_update_date, mode_mn  ] */
+/* tbl-name [ entity_id, first_name, middle_name, surname, english_name ] */
+/* tbl_idnumber [ entity_id, id_type, id_value  ] */
+/* tbl-address [ entity_id, address_city, address_state, address_country ] */
+
+Set NoCount ON
+CREATE TABLE #Result_Master ( entity_id nvarchar(30), gender nvarchar(15), info_source nvarchar(20), 
+user_id nvarchar(35), stamp_dttm nvarchar(50), approved_by nvarchar(10), last_update_date nvarchar(50),
+mode_mn nvarchar(10) , COMP_CODE smallint )
+
+CREATE TABLE #Result_Name ( entity_id nvarchar(30), first_name nvarchar(200), middle_name nvarchar(200),
+ surname nvarchar(200), english_name nvarchar(255) )
+ 
+CREATE TABLE #Result_Idnumber ( entity_id nvarchar(30), id_type nvarchar(50), id_value nvarchar(100) )
+
+CREATE TABLE #Result_Address ( entity_id nvarchar(30), address_city nvarchar(100), address_state nvarchar(100),
+ address_country nvarchar(100) )
+ 
+/*******************************************************************************************************/ 
+ 
+INSERT INTO #Result_Master SELECT entity_id, gender,info_source, user_id, stamp_dttm, 
+approved_by, last_update_date, mode_mn, comp_code
+FROM [tbl-master] 
+WHERE COMP_CODE = '1' AND DATA_TYPE <> 'B'
+
+
+INSERT INTO #Result_Name SELECT entity_id, first_name, middle_name, surname, english_name
+FROM [tbl-name]
+
+INSERT INTO #Result_Idnumber SELECT entity_id, id_type, id_value 
+FROM [tbl-idnumber]
+
+INSERT INTO #Result_Address SELECT entity_id, address_city, address_state, address_country 
+FROM [tbl-address]
+
+/*******************************************************************************************************/ 
+
+CREATE TABLE #ResultTemp01 ( entity_id nvarchar(30), first_name nvarchar(200), middle_name nvarchar(200),
+ surname nvarchar(200), english_name nvarchar(255) , gender nvarchar(15), info_source nvarchar(20), 
+user_id nvarchar(35), stamp_dttm nvarchar(50), approved_by nvarchar(10), last_update_date nvarchar(50),mode_mn nvarchar(10))
+INSERT INTO #ResultTemp01 
+SELECT DISTINCT tm.ENTITY_ID, tn.FIRST_NAME, tn.MIDDLE_NAME , tn.SURNAME , tn.ENGLISH_NAME,tm.GENDER, 
+tm.[INFO_SOURCE],tm.[USER_ID], tm.[STAMP_DTTM], tm.[APPROVED_BY], tm.[LAST_UPDATE_DATE],tm.[MODE_MN]
+FROM #Result_Master tm
+LEFT JOIN (
+	SELECT ENTITY_ID, FIRST_NAME, MIDDLE_NAME, SURNAME, ENGLISH_NAME
+	FROM #Result_Name
+) AS tn ON tn.ENTITY_ID = tm.ENTITY_ID 
+
+CREATE TABLE #ResultTemp02 ( entity_id nvarchar(30), first_name nvarchar(200), middle_name nvarchar(200),
+surname nvarchar(200), english_name nvarchar(255) , gender nvarchar(15), info_source nvarchar(20), 
+user_id nvarchar(35), stamp_dttm nvarchar(50), approved_by nvarchar(10), last_update_date nvarchar(50),
+mode_mn nvarchar(10), id_type nvarchar(50), id_value nvarchar(100) )
+INSERT INTO #ResultTemp02
+SELECT DISTINCT tm.ENTITY_ID, tm.FIRST_NAME, tm.MIDDLE_NAME , tm.SURNAME , 
+tm.ENGLISH_NAME,tm.GENDER, tm.[INFO_SOURCE],tm.[USER_ID], 
+tm.[STAMP_DTTM], tm.[APPROVED_BY], tm.[LAST_UPDATE_DATE],tm.[MODE_MN], ti.ID_TYPE, ti.ID_VALUE
+FROM #ResultTemp01 tm
+LEFT JOIN ( 
+	SELECT ENTITY_ID, ID_TYPE, ID_VALUE
+	FROM #Result_Idnumber 
+) AS ti ON ti.ENTITY_ID = tm.ENTITY_ID 
+
+CREATE TABLE #ResultTemp03 ( entity_id nvarchar(30), first_name nvarchar(200), middle_name nvarchar(200),
+surname nvarchar(200), english_name nvarchar(255), gender nvarchar(15), info_source nvarchar(20), 
+user_id nvarchar(35), stamp_dttm nvarchar(50), approved_by nvarchar(10), last_update_date nvarchar(50),
+mode_mn nvarchar(10), id_type nvarchar(50), id_value nvarchar(100), address_city nvarchar(100), address_state nvarchar(100),
+ address_country nvarchar(100), risk_flag varchar(1) )
+INSERT INTO #ResultTemp03
+SELECT DISTINCT tm.ENTITY_ID, tm.FIRST_NAME, tm.MIDDLE_NAME , tm.SURNAME , tm.ENGLISH_NAME,tm.GENDER, 
+tm.[INFO_SOURCE],tm.[USER_ID], tm.[STAMP_DTTM], tm.[APPROVED_BY], tm.[LAST_UPDATE_DATE],tm.[MODE_MN], 
+tm.ID_TYPE, tm.ID_VALUE, ta.ADDRESS_CITY,ta.ADDRESS_STATE,ta.ADDRESS_COUNTRY,'0'
+FROM #ResultTemp02 tm
+LEFT JOIN (
+	SELECT ENTITY_ID, ADDRESS_CITY, ADDRESS_STATE, ADDRESS_COUNTRY
+	FROM #Result_Address
+) AS ta ON ta.ENTITY_ID = tm.ENTITY_ID 
+
+
+Set NoCount Off
+
+drop table #Result_Master
+drop table #Result_Name
+drop table #Result_Idnumber
+drop table #Result_Address
+drop table #ResultTemp01
+drop table #ResultTemp02
+
+UPDATE #ResultTemp03 SET risk_flag='1'
+WHERE ([INFO_SOURCE] LIKE 'UN%') OR ([INFO_SOURCE] LIKE 'FREEZE-04%') OR ([INFO_SOURCE] LIKE 'FREEZE-05%')
+
+SELECT DISTINCT 'D', ID_TYPE, ID_VALUE, ENTITY_ID, '',
+FIRST_NAME , SURNAME , ENGLISH_NAME, '','',
+GENDER, ADDRESS_CITY, ADDRESS_STATE, ADDRESS_COUNTRY,
+[INFO_SOURCE], '3', RISK_FLAG, [USER_ID], 
+[STAMP_DTTM], [APPROVED_BY], [LAST_UPDATE_DATE], [MODE_MN]
+FROM #ResultTemp03
+WHERE (id_type IS NOT NULL) AND (id_value IS NOT NULL) AND (id_type <> '')
+
+drop table #ResultTemp03
